@@ -1,0 +1,58 @@
+import Head from 'next/head';
+import { useState, useEffect } from 'react';
+
+export default function Home({ products }) {
+  const [filteredProducts, setFilteredProducts] = useState(products);
+
+  const handleSearch = (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    setFilteredProducts(products.filter(product => 
+      product.title.toLowerCase().includes(searchTerm)
+    ));
+  };
+
+  return (
+    <div>
+      <Head>
+        <title>Product Store</title>
+        <meta name="description" content="A demo store using Next.js with SSR" />
+      </Head>
+
+      <header className="p-4 bg-blue-600 text-white text-center">
+        <h1 className="text-3xl font-bold">Product Store</h1>
+        <input 
+          type="text" 
+          placeholder="Search products..." 
+          className="mt-2 p-2 w-full max-w-md mx-auto block border rounded" 
+          onChange={handleSearch}
+        />
+      </header>
+
+      <main className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredProducts.map(product => (
+          <div key={product.id} className="border p-4 rounded shadow">
+            <img src={product.image} alt={product.title} className="w-full h-48 object-contain" />
+            <h2 className="font-bold text-xl mt-2">{product.title}</h2>
+            <p className="mt-1">{product.description}</p>
+            <p className="mt-2 text-green-600 font-bold">${product.price}</p>
+          </div>
+        ))}
+      </main>
+
+      <footer className="p-4 bg-blue-600 text-white text-center">
+        <p>© 2024 Product Store</p>
+      </footer>
+    </div>
+  );
+}
+
+export async function getServerSideProps() {
+  const res = await fetch('https://fakestoreapi.com/products');
+  const products = await res.json();
+
+  return {
+    props: {
+      products,
+    },
+  };
+}
